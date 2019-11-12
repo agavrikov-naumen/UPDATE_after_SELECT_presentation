@@ -25,8 +25,70 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
+				<section>SQL. UPDATE/INSERT after SELECT. <br/>Возможная проблема в многопоточном исполнении и варианты решения.</section>
+				<section>
+					<h2>Описание проблемы</h2>
+						<div class="fragment">
+							<pre>
+								<code data-trim data-noescape>
+									def add(id: Int, value: Int): Unit = {
+									   entity = getById(id) //получение сущности из бд
+									   entity.value += value //изменение значения
+									   save(entity) //запись в бд с измененным значением
+									}
+								</code>
+							</pre>
+							<p>При однопоточном вызове данного участка все должно быть хорошо. Но если данный код будет вызываться в многопоточной среде то у нас возникнут проблемы.</p>
+						</div>
+				</section>
+
+
+				<section>
+					<h2>Описание проблемы</h2>
+					<pre>
+							<code data-trim data-noescape>
+							def add(id: Int, val: Int): Unit = <mark>tx</mark> {
+								entity = getById(id)
+								entity.val += val
+								save(entity)
+							}
+							</code>
+						</pre>
+					<p>Обернем исполняемый код в транзакцию. Но к сожалению данный код при одновременном обращении все еще может работать не так как мы планируем.</p>
+				</section>
+
+				<section>
+					<h2>Описание проблемы</h2>
+						<pre>
+							<code data-trim data-noescape>
+							def add(id: Int, val: Int): Unit = <mark>tx</mark> {
+								entity = getById(id)
+								entity.val += val
+								save(entity)
+							}
+							</code>
+						</pre>
+					<p>Обернем исполняемый код в транзакцию. Но к сожалению это не всегда решает проблемы многопоточного исполнения.</p>
+				</section>
+
+				<section>
+					<h2>Описание проблемы</h2>
+					<pre>
+						<code data-trim data-noescape>
+						def add(id: Int, val: Int): Unit = <mark>tx</mark> {
+							entity = getById(id)
+							entity.val += val
+							save(entity)
+						}
+						</code>
+					</pre>
+					<p>В ходе исследований удалось установить, что некоторые люди считают что достаточно обернуть код в транзакцию и все проблемы должны быть решены.</p>
+				</section>
+
+				<section>
+					<h2>Описание проблемы</h2>
+					<p></p>
+				</section>
 			</div>
 		</div>
 
